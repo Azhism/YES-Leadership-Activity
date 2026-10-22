@@ -720,19 +720,19 @@ const WORLDS = {
         defaultSelected:["transport","food"],
         missing:{},
         sacks:[
-          {key:"transport", label:"Transport", cost:4000, fixed:true, hint:"Getting the women and their work to the city", x:71, y:8, r:-6},
-          {key:"food", label:"Food", cost:2000, fixed:true, hint:"A fed team has the energy for a long day in the field", x:40, y:74, r:-6},
-          {key:"pricing", label:"Pricing and costing workshop", cost:5000, essential:true, hint:"So the women set their own worth", x:8, y:6, r:-7},
-          {key:"accounts", label:"Simple accounts and record-keeping", cost:2500, essential:true, hint:"A notebook method they can keep using after you leave", x:40, y:5, r:5},
-          {key:"photos", label:"Product photography lesson", cost:2500, hint:"Teach them to shoot their own catalogue for buyers", x:71, y:8, r:-6},
-          {key:"pitch", label:"Pitching practice sessions", cost:2000, hint:"Role-play selling to city buyers until it feels natural", x:10, y:40, r:6},
-          {key:"phone", label:"Phone and WhatsApp selling workshop", cost:2000, hint:"Reach buyers directly, using the phone they already own", x:41, y:40, r:-5},
-          {key:"packaging", label:"Packaging and labelling lesson", cost:2000, hint:"Show them how presentation lifts the price", x:70, y:44, r:7},
-          {key:"costs", label:"Bulk-buying and costs session", cost:1500, hint:"Teach them to buy thread together and keep more of what they earn", x:8, y:74, r:5},
-          {key:"phrases", label:"Selling phrases in Urdu and English", cost:1500, hint:"Words that help them talk to city buyers", x:40, y:74, r:-6},
-          {key:"mock", label:"Mock market day", cost:2500, hint:"A practice run before the real one", x:71, y:76, r:6}
+          {key:"transport", label:"Van hire and fuel", cost:4000, fixed:true, hint:"Getting the women and their work to the city", x:71, y:8, r:-6},
+          {key:"food", label:"Food for the team", cost:2000, fixed:true, hint:"A fed team has the energy for a long day in the field", x:40, y:74, r:-6},
+          {key:"materials", label:"Raw materials: thread, cloth and beads", cost:5000, essential:true, hint:"Without these there is nothing for the women to make or sell", x:8, y:6, r:-7},
+          {key:"accounts", label:"Account ledger, receipt book and calculator", cost:1500, essential:true, hint:"So the women can track every rupee they earn after you leave", x:40, y:5, r:5},
+          {key:"photos", label:"Smartphone for photos and WhatsApp selling", cost:6000, hint:"Shoot their own catalogue and reach city buyers directly", x:71, y:8, r:-6},
+          {key:"sewing", label:"Sewing machine", cost:4000, hint:"A real tool that lets them make more, faster, and earn more", x:10, y:40, r:6},
+          {key:"stall", label:"Market stall with display table and cloth", cost:2500, hint:"A proper place to show and sell their work", x:41, y:40, r:-5},
+          {key:"packaging", label:"Packaging: bags, boxes and printed labels", cost:2000, hint:"Good presentation lifts the price buyers will pay", x:70, y:44, r:7},
+          {key:"catalogue", label:"Printed product catalogue and price cards", cost:1500, hint:"Something to put in a city buyer's hands", x:8, y:74, r:5},
+          {key:"chocolates", label:"Dubai chocolate hamper", cost:5000, hint:"A premium imported treat for the day", x:40, y:74, r:-6},
+          {key:"handbags", label:"Designer handbags for the team", cost:3000, hint:"Matching bags so the team looks sharp on the day", x:71, y:76, r:6}
         ]},
-      a3:{ title:"Three suppliers sent quotes", intro:"For the workshops, printing and packaging. Each supplier changes how the day holds up.",
+      a3:{ title:"Three suppliers sent quotes", intro:"For the materials, packaging and printing. Each supplier changes how the day holds up.",
         vendors:[
         {key:"A",name:"Thrifty Traders",desc:"Cheapest. Flimsy thread and cloth that may not last.",price:"Budget",flag:"cheap",startEff:{budget:5}},
         {key:"B",name:"Balanced Supply Co.",desc:"Fair and dependable. Honest quality.",price:"Fair",flag:"fair",startEff:{trust:4}},
@@ -781,7 +781,7 @@ const WORLDS = {
 
       { key:"document", tag:"The quiet gap", title:"Forgot to document it", vignette:"document",
         screens:"document",            // rebuilt as evening -> the gap -> the write-your-answer decision
-        fieldLabel:"Field · Two", beatName:"The quiet gap",
+        fieldLabel:"Field · Three", beatName:"The quiet gap",
         evening:"The session went beautifully. The women are smiling, orders are promised, your team glowing as you pack up in the evening light.",
         gap1:"Then it hits someone: not a single photo, no attendance written down.",
         gap2:"The funder needs proof it happened, and there is none.",
@@ -3282,7 +3282,7 @@ function renderSceneCard(card){
     <div class="tag">${sc.label||card.tag}</div>
     <p class="narr sc-txt" id="scTxt" aria-live="polite"></p>
     <button class="btn big" id="scNx" style="width:100%" type="button">Next</button>
-    <button class="btn big ghost" id="scGo" style="width:100%;margin-top:8px" type="button" hidden>Continue</button>
+    <button class="btn big" id="scGo" style="width:100%" type="button" hidden>Continue</button>
     <div class="sc-dots" role="img" aria-label="Screen 1 of ${screens.length}" id="scDots">${screens.map((_,k)=>`<span class="sc-dot${k?'':' on'}"></span>`).join('')}</div>
   </div></div>`;
   const oc=document.getElementById('oc'),txt=document.getElementById('scTxt'),dots=document.getElementById('scDots'),
@@ -3295,7 +3295,7 @@ function renderSceneCard(card){
     txt.style.opacity=0;
     const apply=()=>{
       txt.textContent=sd.text; txt.style.opacity=1;
-      nx.textContent=last?'Replay':'Next';
+      nx.hidden=last;            // no Replay: the last screen shows only Continue
       go.hidden=!last;
       [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===n));
       dots.setAttribute('aria-label','Screen '+(n+1)+' of '+screens.length);
@@ -3303,8 +3303,7 @@ function renderSceneCard(card){
     if(n===0&&i===0&&!txt.textContent||reduce)apply(); else setTimeout(apply,200);
   }
   function next(){
-    if(i<screens.length-1)i++; else i=0;               // the last screen's button is "Replay": loop to screen 1
-    show(i);
+    if(i<screens.length-1){i++;show(i);}               // advance only; no loop-back (Replay removed)
   }
   function drawQuestion(){
     const sd=screens[screens.length-1];
@@ -3328,7 +3327,7 @@ function renderSceneCard(card){
   }
   nx.addEventListener('click',next);
   go.addEventListener('click',()=>{panel.onclick=null;drawQuestion();});
-  // tap anywhere advances, except on the last screen (there the buttons decide: Replay or Continue)
+  // tap anywhere advances, except on the last screen (there only Continue shows)
   panel.onclick=e=>{ if(e.target.closest('button,textarea,input'))return; if(i<screens.length-1)next(); };
   show(0);
 }
@@ -3564,6 +3563,16 @@ function goDebrief(){
       <div class="trk"><div class="fl" data-w="${pct}" style="width:0%"></div></div></div>`;
   }).join('');
 
+  // what the team actually packed into the bucket (their A2 choices), read back for reflection
+  const fmtPkr=n=>'PKR '+Number(n||0).toLocaleString();
+  const chosen=S.world.plan.a2.sacks.filter(s=>S.plan.budget[s.key]>0);
+  const total=S.world.plan.a2.total, reserve=S.plan.reserve||0, spent=total-reserve;
+  const chosenHtml=chosen.length
+    ?`<div class="q">What you packed into the bucket</div>
+       <div>${chosen.map(s=>`${s.label} (${fmtPkr(S.plan.budget[s.key])})`).join(', ')}.</div>
+       <div class="muted" style="margin-top:4px">Spent ${fmtPkr(spent)} of ${fmtPkr(total)}, leaving ${fmtPkr(reserve)} in reserve.</div>`
+    :`<div class="q">What you packed into the bucket</div><div>Nothing was added to the bucket: the whole ${fmtPkr(total)} was left unspent.</div>`;
+
   const essentials=S.world.plan.a2.sacks.filter(s=>s.essential);
   const forgot=essentials.filter(s=>!(S.plan.budget[s.key]>0)).map(s=>s.label);
   const forgotHtml=forgot.length
@@ -3571,7 +3580,8 @@ function goDebrief(){
     :`<div class="q">Essentials</div><div>${essentials.map(s=>s.label).join(' and ')} were both covered.</div>`;
   const notesHtml=S.world.cards.map((c,i)=>(S.notes&&S.notes[i])
     ?`<div class="q">${c.title}</div><div>${escapeHtml(S.notes[i])}</div>`:'').join('');
-  const planback=`<div class="planback">${forgotHtml}
+  const planback=`<div class="planback">${chosenHtml}
+    ${forgotHtml}
     <div class="q">The core problem, in your words</div>
     <div>${S.plan.a1.p?escapeHtml(S.plan.a1.p):'<span class="muted">-</span>'}</div>
     <div class="q">What you set out to do</div>
