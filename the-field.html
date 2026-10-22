@@ -2660,19 +2660,11 @@ function renderPunctureCard(card){
       <div class="cin-meta">
         <span class="tag">${card.tag}</span>
         <div class="cin-progress" role="img" aria-label="Scene ${idx+1} of ${CIN_TOTAL_SCENES}">${segs}</div>
-        <button class="cin-replay" id="cinReplay"${s.run?'':' hidden'}>${REPLAY}Replay</button>
       </div>
       <p class="cin-narr play" id="cinNarr" aria-live="polite" style="--d1:${s.delays[0]};--d2:${s.delays[1]}">${narr}</p>
       <button class="btn big cin-cta" id="cinCta" style="width:100%">${s.cta}${ARROW}</button>
     </div></div>`;
     panel.scrollTop=0;
-    const replay=document.getElementById('cinReplay');
-    if(replay)replay.addEventListener('click',()=>{
-      const sc=document.getElementById('cinScene'),nr=document.getElementById('cinNarr');
-      sc.classList.remove('cin-run');nr.classList.remove('play');
-      void sc.offsetWidth; // reflow so the timed sequence restarts from the top
-      sc.classList.add('cin-run');nr.classList.add('play');
-    });
     document.getElementById('cinCta').addEventListener('click',()=>{
       if(idx<SCENES.length-1){idx++;scene();} else question();
     });
