@@ -1455,25 +1455,39 @@ function showCodename(){
       </div>
     </div>`;
   const input=document.getElementById('codeInput');
+  const showCodeErr=()=>{
+    let e=document.getElementById('codeErr');
+    if(!e){ e=document.createElement('p'); e.id='codeErr'; e.setAttribute('role','alert');
+      e.style.cssText='color:var(--bad);font-weight:600;font-size:.92rem;margin:10px 0 0';
+      input.closest('.fld').insertAdjacentElement('afterend',e); }
+    e.textContent='That codename isn’t recognised. Please check with your facilitator and try again.';
+    input.setAttribute('aria-invalid','true'); input.focus(); input.select();
+  };
   const go=()=>{
     const raw=input.value.trim();
     if(!raw)return;
-    resolveWorld(raw);
+    if(!resolveWorld(raw)){ showCodeErr(); return; }   // only alpha / bravo / charlie open a world
     panel.className='panel';panel.innerHTML='';
     fadeBlack(()=>{S.sceneIdx=0;renderScene();});
   };
   document.getElementById('beginBtn').addEventListener('click',go);
   input.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  input.addEventListener('input',()=>{const e=document.getElementById('codeErr'); if(e)e.remove(); input.removeAttribute('aria-invalid');});
   setTimeout(()=>input.focus(),300);
 }
 function resolveWorld(raw){
-  const k=raw.toLowerCase();
-  // map codename -> display town (never shown). charlie is retired: it falls through to Banaras Town
-  const WID={bravo:'bastinoor',bastinoor:'bastinoor',alpha:'hunarabad',hunarabad:'hunarabad',delta:'banarastown',banarastown:'banarastown'};
-  const TOWN={bastinoor:'Basti Noor',hunarabad:'Hunarabad',banarastown:'Banaras Town'};
-  const wid=WID[k]||'banarastown'; // any unknown codename lands in Delta, Banaras Town
+  const k=raw.toLowerCase().trim();
+  // Only three valid codenames (any case). Nothing else opens a world.
+  //   alpha   -> Women Empowerment (Hunarabad)
+  //   bravo   -> Health (Basti Noor)
+  //   charlie -> Digital Literacy (Banaras Town)
+  const WID={alpha:'hunarabad', bravo:'bastinoor', charlie:'banarastown'};
+  const TOWN={hunarabad:'Hunarabad', bastinoor:'Basti Noor', banarastown:'Banaras Town'};
+  const wid=WID[k];
+  if(!wid){ S.world=null; return false; }     // unknown codename: caller keeps the player on the start screen
   S.world=WORLDS[wid];
-  S.groupName=WID[k]?TOWN[wid]:raw; // a known codename greets by its town; an unknown greets by the typed name
+  S.groupName=TOWN[wid];                        // greet by the town (the codename->town map is never shown)
+  return true;
 }
 
 /* story art: flat vector scenes, one set per world (same component, different art) */
